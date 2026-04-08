@@ -432,6 +432,25 @@
       border-left: 3px solid var(--border-2);
       cursor: grab;
       transition: background .1s, opacity .15s;
+      position: relative;
+    }
+
+    .task-time {
+      font-size: 9px;
+      color: var(--text-3);
+      background: var(--bg-muted);
+      padding: 1px 4px;
+      border-radius: 3px;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    .task-recurring {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      font-size: 10px;
+      color: var(--amber);
     }
 
     .task-item.pri-high {
@@ -513,6 +532,34 @@
     .add-task-inp:focus {
       outline: none;
       border-color: var(--green-400);
+    }
+
+    .task-options {
+      display: flex;
+      gap: 4px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    .time-input {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border-1);
+      background: var(--bg-input);
+      color: var(--text-1);
+      font-family: inherit;
+    }
+
+    .recurring-select {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border-1);
+      background: var(--bg-input);
+      color: var(--text-1);
+      font-family: inherit;
+      cursor: pointer;
     }
 
     .add-btn {
@@ -1061,6 +1108,317 @@
     .empty-msg-title { font-size: 14px; font-weight: 600; color: var(--text-2); }
     .empty-msg-sub { font-size: 12px; color: var(--text-3); }
 
+    /* ── Custom Theme System ── */
+    .theme-selector {
+      position: relative;
+      display: inline-block;
+    }
+
+    .theme-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-1);
+      border-radius: var(--radius-md);
+      padding: 8px;
+      margin-top: 4px;
+      min-width: 150px;
+      box-shadow: var(--shadow-md);
+      z-index: 1000;
+      display: none;
+    }
+
+    .theme-dropdown.show {
+      display: block;
+    }
+
+    .theme-option {
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 13px;
+      transition: background .15s;
+      margin-bottom: 2px;
+    }
+
+    .theme-option:hover {
+      background: var(--bg-muted);
+    }
+
+    .theme-option.active {
+      background: var(--green-400);
+      color: white;
+    }
+
+    /* ── Heatmap ── */
+    .heatmap-section {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-1);
+      border-radius: var(--radius-lg);
+      padding: 1.1rem;
+      margin-bottom: 1.4rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .heatmap-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .heatmap-grid {
+      display: grid;
+      grid-template-columns: repeat(53, 1fr);
+      gap: 2px;
+      margin-bottom: 8px;
+    }
+
+    .heatmap-cell {
+      aspect-ratio: 1;
+      border-radius: 2px;
+      background: var(--bg-muted);
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+    }
+
+    .heatmap-cell:hover {
+      transform: scale(1.2);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .heatmap-cell.level-1 { background: var(--green-50); }
+    .heatmap-cell.level-2 { background: var(--green-100); }
+    .heatmap-cell.level-3 { background: var(--green-400); }
+    .heatmap-cell.level-4 { background: var(--green-600); }
+
+    .heatmap-legend {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-3);
+    }
+
+    .heatmap-legend-item {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+    }
+
+    /* ── Timer Settings ── */
+    .timer-settings {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-left: auto;
+    }
+
+    .timer-input {
+      width: 60px;
+      font-size: 12px;
+      padding: 4px 6px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border-1);
+      background: var(--bg-input);
+      color: var(--text-1);
+      font-family: inherit;
+      text-align: center;
+    }
+
+    .timer-label {
+      font-size: 11px;
+      color: var(--text-3);
+      white-space: nowrap;
+    }
+
+    /* ── Task Suggestions ── */
+    .suggestions-section {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-1);
+      border-radius: var(--radius-lg);
+      padding: 1.1rem;
+      margin-bottom: 1.4rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .suggestion-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 6px;
+      background: var(--bg-muted);
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .suggestion-item:hover {
+      background: var(--bg-input);
+    }
+
+    .suggestion-text {
+      font-size: 13px;
+      color: var(--text-1);
+    }
+
+    .suggestion-meta {
+      font-size: 11px;
+      color: var(--text-3);
+    }
+
+    .add-suggestion-btn {
+      background: var(--green-400);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 4px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .add-suggestion-btn:hover {
+      background: var(--green-600);
+    }
+
+    /* ── Custom UI Elements ── */
+    .dino-runner {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      z-index: 1000;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .dino-runner:hover {
+      transform: scale(1.1);
+    }
+
+    .dino-runner.running {
+      animation: dinoRun 0.5s infinite;
+    }
+
+    @keyframes dinoRun {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-5px) rotate(-2deg); }
+      50% { transform: translateY(0) rotate(0deg); }
+      75% { transform: translateY(-5px) rotate(2deg); }
+    }
+
+    .dino-jump {
+      animation: dinoJump 0.6s ease-out;
+    }
+
+    @keyframes dinoJump {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-30px); }
+      100% { transform: translateY(0); }
+    }
+
+    .productivity-pet {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: 80px;
+      height: 80px;
+      background: var(--bg-card);
+      border: 2px solid var(--border-1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: var(--shadow-md);
+      z-index: 1000;
+    }
+
+    .productivity-pet:hover {
+      transform: scale(1.1) rotate(5deg);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .productivity-pet.happy {
+      animation: petHappy 1s ease-in-out;
+    }
+
+    @keyframes petHappy {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      25% { transform: scale(1.2) rotate(-10deg); }
+      75% { transform: scale(1.2) rotate(10deg); }
+    }
+
+    .floating-emoji {
+      position: fixed;
+      font-size: 20px;
+      pointer-events: none;
+      z-index: 9999;
+      animation: floatUp 2s ease-out forwards;
+    }
+
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-100px); }
+    }
+
+    .streak-fire {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      font-size: 16px;
+      animation: fireFlicker 1s infinite;
+    }
+
+    @keyframes fireFlicker {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      25% { transform: scale(1.1) rotate(-5deg); }
+      75% { transform: scale(1.1) rotate(5deg); }
+    }
+
+    .achievement-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: var(--bg-card);
+      border: 3px solid var(--green-400);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      text-align: center;
+      z-index: 10000;
+      box-shadow: var(--shadow-lg);
+      animation: achievementPop 0.5s ease-out forwards;
+    }
+
+    @keyframes achievementPop {
+      0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); }
+      50% { transform: translate(-50%, -50%) scale(1.1) rotate(5deg); }
+      100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+    }
+
+    .achievement-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .achievement-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--green-400);
+      margin-bottom: 5px;
+    }
+
+    .achievement-desc {
+      font-size: 14px;
+      color: var(--text-2);
+    }
+
     /* ── Responsive ── */
     @media (max-width:860px) {
       .week-grid {
@@ -1097,6 +1455,82 @@
     const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     const WORK_SECS = 25 * 60;
     const BREAK_SECS = 5 * 60;
+    
+    // Theme presets
+    const THEMES = {
+      light: {
+        name: 'Light',
+        bgPage: '#eceae4',
+        bgCard: '#ffffff',
+        bgMuted: '#f4f3ef',
+        bgInput: '#f0efe9',
+        text1: '#1a1a1c',
+        text2: '#44444c',
+        text3: '#80808a',
+        border1: '#b8b7b0',
+        border2: '#d0cfc8',
+        border3: '#e4e3dc',
+        green50: '#e8f3d8',
+        green100: '#b8d880',
+        green400: '#5a8f18',
+        green600: '#376010',
+        green800: '#244009'
+      },
+      dark: {
+        name: 'Dark',
+        bgPage: '#111114',
+        bgCard: '#1e1e24',
+        bgMuted: '#28282f',
+        bgInput: '#2e2e38',
+        text1: '#eeeef2',
+        text2: '#9898a8',
+        text3: '#606070',
+        border1: '#38383f',
+        border2: '#2e2e36',
+        border3: '#242430',
+        green50: '#182808',
+        green100: '#2a4810',
+        green400: '#72b020',
+        green600: '#90d030',
+        green800: '#b0f050'
+      },
+      ocean: {
+        name: 'Ocean',
+        bgPage: '#0a192f',
+        bgCard: '#112240',
+        bgMuted: '#1a365d',
+        bgInput: '#233554',
+        text1: '#e6f1ff',
+        text2: '#a8b2d1',
+        text3: '#64748b',
+        border1: '#334155',
+        border2: '#475569',
+        border3: '#64748b',
+        green50: '#064e3b',
+        green100: '#047857',
+        green400: '#10b981',
+        green600: '#34d399',
+        green800: '#6ee7b7'
+      },
+      sunset: {
+        name: 'Sunset',
+        bgPage: '#2d1b69',
+        bgCard: '#3d2861',
+        bgMuted: '#4a3c7a',
+        bgInput: '#5a4a8a',
+        text1: '#f7e7ff',
+        text2: '#d4b5ff',
+        text3: '#a78bfa',
+        border1: '#7c3aed',
+        border2: '#8b5cf6',
+        border3: '#a78bfa',
+        green50: '#14532d',
+        green100: '#166534',
+        green400: '#22c55e',
+        green600: '#4ade80',
+        green800: '#86efac'
+      }
+    };
 
     /* ───────────────────────────────────────────────
        STORAGE
@@ -1116,7 +1550,10 @@
       data: loadData(),
       newTask: {},
       newPri: {},
+      newTaskTime: {},
+      newTaskRecurring: {},
       newHabitDays: [0, 1, 2, 3, 4, 5, 6],
+      currentTheme: localStorage.getItem('lt_theme') || 'light',
       darkMode: localStorage.getItem('lt_dark') === '1',
       timer: {
         mode: 'work',
@@ -1125,9 +1562,14 @@
         running: false,
         sessions: 0,
         iv: null,
+        workDuration: 25,
+        breakDuration: 5
       },
       prevPct: {},
       dragSrc: null,
+      showThemeDropdown: false,
+      showHeatmap: localStorage.getItem('lt_heatmap') === '1',
+      showSuggestions: localStorage.getItem('lt_suggestions') === '1'
     };
 
     /* defaults */
@@ -1169,15 +1611,49 @@
     }
 
     /* ───────────────────────────────────────────────
-       THEME
+       THEME SYSTEM
     ─────────────────────────────────────────────── */
-    function applyTheme() {
-      document.documentElement.setAttribute('data-theme', state.darkMode ? 'dark' : 'light');
+    function applyTheme(themeName) {
+      const theme = THEMES[themeName] || THEMES.light;
+      const root = document.documentElement;
+      
+      root.style.setProperty('--bg-page', theme.bgPage);
+      root.style.setProperty('--bg-card', theme.bgCard);
+      root.style.setProperty('--bg-muted', theme.bgMuted);
+      root.style.setProperty('--bg-input', theme.bgInput);
+      root.style.setProperty('--text-1', theme.text1);
+      root.style.setProperty('--text-2', theme.text2);
+      root.style.setProperty('--text-3', theme.text3);
+      root.style.setProperty('--border-1', theme.border1);
+      root.style.setProperty('--border-2', theme.border2);
+      root.style.setProperty('--border-3', theme.border3);
+      root.style.setProperty('--green-50', theme.green50);
+      root.style.setProperty('--green-100', theme.green100);
+      root.style.setProperty('--green-400', theme.green400);
+      root.style.setProperty('--green-600', theme.green600);
+      root.style.setProperty('--green-800', theme.green800);
+      
+      state.currentTheme = themeName;
+      localStorage.setItem('lt_theme', themeName);
+      
+      // Update dark mode flag for compatibility
+      state.darkMode = themeName === 'dark';
       localStorage.setItem('lt_dark', state.darkMode ? '1' : '0');
     }
-    applyTheme();
 
-    function toggleTheme() { state.darkMode = !state.darkMode; applyTheme(); render(); }
+    function toggleThemeDropdown() {
+      state.showThemeDropdown = !state.showThemeDropdown;
+      render();
+    }
+
+    function selectTheme(themeName) {
+      applyTheme(themeName);
+      state.showThemeDropdown = false;
+      render();
+    }
+
+    // Initialize theme
+    applyTheme(state.currentTheme);
 
     /* ───────────────────────────────────────────────
        CONFETTI
@@ -1223,15 +1699,24 @@
       return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
     }
 
+    function updateTimerDuration() {
+      const tm = state.timer;
+      if (!tm.running) {
+        tm.secs = tm.mode === 'work' ? tm.workDuration * 60 : tm.breakDuration * 60;
+        tm.total = tm.secs;
+        renderTimerWidget();
+      }
+    }
+
     function timerTick() {
       const tm = state.timer;
       if (tm.secs > 0) { tm.secs--; }
       else {
         if (tm.mode === 'work') {
-          tm.sessions++; tm.mode = 'brk'; tm.secs = BREAK_SECS; tm.total = BREAK_SECS;
+          tm.sessions++; tm.mode = 'brk'; tm.secs = tm.breakDuration * 60; tm.total = tm.breakDuration * 60;
           notify('LifeTracker', 'Break time! Take 5 minutes 🌿');
         } else {
-          tm.mode = 'work'; tm.secs = WORK_SECS; tm.total = WORK_SECS;
+          tm.mode = 'work'; tm.secs = tm.workDuration * 60; tm.total = tm.workDuration * 60;
           notify('LifeTracker', 'Focus time! 25 minutes 🎯');
         }
       }
@@ -1258,7 +1743,9 @@
     }
     function resetTimer() {
       pauseTimer();
-      state.timer.mode = 'work'; state.timer.secs = WORK_SECS; state.timer.total = WORK_SECS;
+      state.timer.mode = 'work'; 
+      state.timer.secs = state.timer.workDuration * 60; 
+      state.timer.total = state.timer.workDuration * 60;
       renderTimerWidget();
     }
 
@@ -1278,6 +1765,16 @@
       <div class="timer-bar-wrap"><div class="timer-bar-fill ${isWork ? '' : 'brk'}" style="width:${pct}%"></div></div>
       <div class="timer-sessions">Sessions today: <strong>${tm.sessions}</strong></div>
     </div>
+    <div class="timer-settings">
+      <span class="timer-label">Work:</span>
+      <input type="number" class="timer-input" value="${tm.workDuration}" min="1" max="60" 
+        onchange="state.timer.workDuration=parseInt(this.value);updateTimerDuration()" 
+        ${tm.running ? 'disabled' : ''}>
+      <span class="timer-label">Break:</span>
+      <input type="number" class="timer-input" value="${tm.breakDuration}" min="1" max="30" 
+        onchange="state.timer.breakDuration=parseInt(this.value);updateTimerDuration()" 
+        ${tm.running ? 'disabled' : ''}>
+    </div>
     <div class="timer-controls">
       ${tm.running
           ? `<button class="timer-btn" onclick="pauseTimer()">⏸ Pause</button>`
@@ -1294,19 +1791,90 @@
     /* ───────────────────────────────────────────────
        TASK ACTIONS
     ─────────────────────────────────────────────── */
-    function addTask(key, text, pri) {
+    function addTask(key, text, pri, time, recurring) {
       if (!text.trim()) return;
       if (!state.data.tasks[key]) state.data.tasks[key] = [];
-      state.data.tasks[key].push({ id: Date.now(), text: text.trim(), done: false, priority: pri || 'medium' });
+      
+      const task = {
+        id: Date.now(),
+        text: text.trim(),
+        done: false,
+        priority: pri || 'medium',
+        time: time || null,
+        recurring: recurring || null
+      };
+      
+      // Handle recurring tasks
+      if (recurring && recurring !== 'none') {
+        const dates = generateRecurringDates(key, recurring);
+        dates.forEach(dateKey => {
+          if (!state.data.tasks[dateKey]) state.data.tasks[dateKey] = [];
+          state.data.tasks[dateKey].push({...task, id: Date.now() + Math.random()});
+        });
+      } else {
+        state.data.tasks[key].push(task);
+      }
+      
+      // Trigger fun UI elements
+      createFloatingEmoji('✨', window.innerWidth / 2 + (Math.random() - 0.5) * 100, window.innerHeight / 2);
+      interactWithPet();
+      
       save(); render();
+    }
+
+    function generateRecurringDates(startDateKey, frequency) {
+      const dates = [];
+      const startDate = new Date(startDateKey + 'T12:00:00');
+      const endDate = new Date(startDate);
+      endDate.setMonth(endDate.getMonth() + 3); // Generate 3 months of recurring tasks
+      
+      let currentDate = new Date(startDate);
+      
+      switch (frequency) {
+        case 'daily':
+          while (currentDate <= endDate) {
+            dates.push(getDateKey(currentDate));
+            currentDate.setDate(currentDate.getDate() + 1);
+          }
+          break;
+        case 'weekly':
+          while (currentDate <= endDate) {
+            dates.push(getDateKey(currentDate));
+            currentDate.setDate(currentDate.getDate() + 7);
+          }
+          break;
+        case 'monthly':
+          while (currentDate <= endDate) {
+            dates.push(getDateKey(currentDate));
+            currentDate.setMonth(currentDate.getMonth() + 1);
+          }
+          break;
+        case 'weekdays':
+          while (currentDate <= endDate) {
+            const dayOfWeek = currentDate.getDay();
+            if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+              dates.push(getDateKey(currentDate));
+            }
+            currentDate.setDate(currentDate.getDate() + 1);
+          }
+          break;
+      }
+      
+      return dates;
     }
 
     function toggleTask(key, id) {
       state.data.tasks[key] = state.data.tasks[key].map(t => t.id === id ? { ...t, done: !t.done } : t);
       save();
       const pct = completion(key);
-      if (pct === 100 && (state.prevPct[key] || 0) < 100) launchConfetti();
+      if (pct === 100 && (state.prevPct[key] || 0) < 100) {
+        launchConfetti();
+        startDinoRunning();
+        setTimeout(() => stopDinoRunning(), 3000);
+      }
       state.prevPct[key] = pct;
+      updatePetMood();
+      checkAchievements();
       render();
     }
 
@@ -1457,6 +2025,8 @@
         ondrop="onDrop('${key}',${t.id})">
         <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask('${key}',${t.id})">
         <span class="task-text${t.done ? ' done' : ''}">${t.text}</span>
+        ${t.time ? `<span class="task-time">${t.time}</span>` : ''}
+        ${t.recurring && t.recurring !== 'none' ? '<span class="task-recurring">🔄</span>' : ''}
       </div>`;
         });
 
@@ -1469,8 +2039,17 @@
       <div class="add-task-row">
         <input class="add-task-inp" type="text" placeholder="Add task..." value="${inp}"
           oninput="state.newTask['${key}']=this.value"
-          onkeydown="if(event.key==='Enter'){addTask('${key}',state.newTask['${key}']||'',state.newPri['${key}']||'medium');state.newTask['${key}']='';this.value=''}">
-        <button class="add-btn" onclick="addTask('${key}',state.newTask['${key}']||'',state.newPri['${key}']||'medium');state.newTask['${key}']=''">+</button>
+          onkeydown="if(event.key==='Enter'){addTask('${key}',state.newTask['${key}']||'',state.newPri['${key}']||'medium',null,state.newTaskRecurring['${key}']||'none');state.newTask['${key}']='';this.value=''}">
+        <button class="add-btn" onclick="addTask('${key}',state.newTask['${key}']||'',state.newPri['${key}']||'medium',null,state.newTaskRecurring['${key}']||'none');state.newTask['${key}']=''">+</button>
+      </div>
+      <div class="task-options">
+        <select class="recurring-select" onchange="state.newTaskRecurring['${key}']=this.value">
+          <option value="none">No repeat</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="weekdays">Weekdays</option>
+        </select>
       </div>
     </div>
     <div class="note-area">
@@ -1549,6 +2128,8 @@
       ondrop="onDrop('${selKey}',${t.id})">
       <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask('${selKey}',${t.id})">
       <span class="full-task-text${t.done ? ' done' : ''}">${t.text}</span>
+      ${t.time ? `<span class="task-time">${t.time}</span>` : ''}
+      ${t.recurring && t.recurring !== 'none' ? '<span class="task-recurring">🔄</span>' : ''}
       <span class="pri-badge ${t.priority || 'medium'}">${t.priority || 'medium'}</span>
       <button class="del-btn" onclick="deleteTask('${selKey}',${t.id})">×</button>
     </div>`;
@@ -1561,8 +2142,17 @@
     </select>
     <input type="text" placeholder="Add a task..." value="${inp2}" id="sel-inp"
       oninput="state.newTask['${selKey}']=this.value"
-      onkeydown="if(event.key==='Enter'){addTask('${selKey}',state.newTask['${selKey}']||'',state.newPri['${selKey}']||'medium');state.newTask['${selKey}']='';this.value=''}">
-    <button onclick="addTask('${selKey}',state.newTask['${selKey}']||'',state.newPri['${selKey}']||'medium');state.newTask['${selKey}']='';document.getElementById('sel-inp').value=''">Add</button>
+      onkeydown="if(event.key==='Enter'){addTask('${selKey}',state.newTask['${selKey}']||'',state.newPri['${selKey}']||'medium',null,state.newTaskRecurring['${selKey}']||'none');state.newTask['${selKey}']='';this.value=''}">
+    <button onclick="addTask('${selKey}',state.newTask['${selKey}']||'',state.newPri['${selKey}']||'medium',null,state.newTaskRecurring['${selKey}']||'none');state.newTask['${selKey}']='';document.getElementById('sel-inp').value=''">Add</button>
+  </div>
+  <div class="task-options">
+    <select class="recurring-select" onchange="state.newTaskRecurring['${selKey}']=this.value">
+      <option value="none">No repeat</option>
+      <option value="daily">Daily</option>
+      <option value="weekly">Weekly</option>
+      <option value="monthly">Monthly</option>
+      <option value="weekdays">Weekdays</option>
+    </select>
   </div>
   <div class="panel-note-sec">
     <div class="panel-note-lbl">📝 Daily Note</div>
@@ -1682,6 +2272,222 @@
     }
 
     /* ───────────────────────────────────────────────
+       CUSTOM UI ELEMENTS
+    ─────────────────────────────────────────────── */
+    let dinoState = {
+      running: false,
+      position: 0,
+      speed: 1,
+      emoji: '🦕'
+    };
+
+    let petState = {
+      mood: 'happy',
+      level: 1,
+      experience: 0,
+      emoji: '🌱'
+    };
+
+    const ACHIEVEMENTS = {
+      firstTask: { icon: '🎯', title: 'First Task!', desc: 'You completed your first task!' },
+      streak3: { icon: '🔥', title: '3 Day Streak!', desc: 'You\'re on fire!' },
+      streak7: { icon: '💎', title: 'Week Warrior!', desc: '7 days of productivity!' },
+      tasks10: { icon: '⭐', title: 'Task Master!', desc: '10 tasks completed!' },
+      tasks50: { icon: '🏆', title: 'Productivity Champion!', desc: '50 tasks completed!' },
+      perfectDay: { icon: '✨', title: 'Perfect Day!', desc: 'All tasks completed today!' },
+      earlyBird: { icon: '🌅', title: 'Early Bird!', desc: 'Task completed before 9 AM!' },
+      nightOwl: { icon: '🦉', title: 'Night Owl!', desc: 'Task completed after 10 PM!' }
+    };
+
+    function initCustomUI() {
+      createDinoRunner();
+      createProductivityPet();
+      loadPetState();
+    }
+
+    function createDinoRunner() {
+      const dino = document.createElement('div');
+      dino.className = 'dino-runner';
+      dino.innerHTML = dinoState.emoji;
+      dino.onclick = () => jumpDino();
+      document.body.appendChild(dino);
+    }
+
+    function createProductivityPet() {
+      const pet = document.createElement('div');
+      pet.className = 'productivity-pet';
+      pet.innerHTML = petState.emoji;
+      pet.onclick = () => interactWithPet();
+      document.body.appendChild(pet);
+    }
+
+    function jumpDino() {
+      const dino = document.querySelector('.dino-runner');
+      dino.classList.add('dino-jump');
+      createFloatingEmoji('💨', dino.getBoundingClientRect().left + 30, dino.getBoundingClientRect().top);
+      
+      setTimeout(() => {
+        dino.classList.remove('dino-jump');
+      }, 600);
+    }
+
+    function startDinoRunning() {
+      const dino = document.querySelector('.dino-runner');
+      if (!dinoState.running) {
+        dinoState.running = true;
+        dino.classList.add('running');
+        dino.innerHTML = '🏃‍♂️';
+      }
+    }
+
+    function stopDinoRunning() {
+      const dino = document.querySelector('.dino-runner');
+      dinoState.running = false;
+      dino.classList.remove('running');
+      dino.innerHTML = dinoState.emoji;
+    }
+
+    function interactWithPet() {
+      const pet = document.querySelector('.productivity-pet');
+      pet.classList.add('happy');
+      createFloatingEmoji('❤️', pet.getBoundingClientRect().left + 40, pet.getBoundingClientRect().top);
+      
+      // Update pet mood based on productivity
+      updatePetMood();
+      
+      setTimeout(() => {
+        pet.classList.remove('happy');
+      }, 1000);
+    }
+
+    function updatePetMood() {
+      const todayPct = completion(todayKey());
+      if (todayPct === 100) {
+        petState.emoji = '🌟';
+        petState.mood = 'excited';
+      } else if (todayPct >= 75) {
+        petState.emoji = '🌸';
+        petState.mood = 'happy';
+      } else if (todayPct >= 50) {
+        petState.emoji = '🌱';
+        petState.mood = 'content';
+      } else {
+        petState.emoji = '🌿';
+        petState.mood = 'sleepy';
+      }
+      
+      const pet = document.querySelector('.productivity-pet');
+      if (pet) pet.innerHTML = petState.emoji;
+      savePetState();
+    }
+
+    function createFloatingEmoji(emoji, x, y) {
+      const element = document.createElement('div');
+      element.className = 'floating-emoji';
+      element.innerHTML = emoji;
+      element.style.left = x + 'px';
+      element.style.top = y + 'px';
+      document.body.appendChild(element);
+      
+      setTimeout(() => {
+        element.remove();
+      }, 2000);
+    }
+
+    function checkAchievements() {
+      const achievements = JSON.parse(localStorage.getItem('lt_achievements') || '{}');
+      const today = todayKey();
+      const tasks = getTasksForDay(today);
+      const completedTasks = tasks.filter(t => t.done);
+      const streak = calcStreak();
+      const totalCompleted = Object.values(state.data.tasks).flat().filter(t => t.done).length;
+      
+      // Check various achievements
+      if (completedTasks.length === 1 && !achievements.firstTask) {
+        showAchievement('firstTask');
+        achievements.firstTask = true;
+      }
+      
+      if (streak >= 3 && !achievements.streak3) {
+        showAchievement('streak3');
+        achievements.streak3 = true;
+      }
+      
+      if (streak >= 7 && !achievements.streak7) {
+        showAchievement('streak7');
+        achievements.streak7 = true;
+      }
+      
+      if (totalCompleted >= 10 && !achievements.tasks10) {
+        showAchievement('tasks10');
+        achievements.tasks10 = true;
+      }
+      
+      if (totalCompleted >= 50 && !achievements.tasks50) {
+        showAchievement('tasks50');
+        achievements.tasks50 = true;
+      }
+      
+      if (tasks.length > 0 && completedTasks.length === tasks.length && !achievements.perfectDay) {
+        showAchievement('perfectDay');
+        achievements.perfectDay = true;
+      }
+      
+      const hour = new Date().getHours();
+      if (hour < 9 && completedTasks.length > 0 && !achievements.earlyBird) {
+        showAchievement('earlyBird');
+        achievements.earlyBird = true;
+      }
+      
+      if (hour >= 22 && completedTasks.length > 0 && !achievements.nightOwl) {
+        showAchievement('nightOwl');
+        achievements.nightOwl = true;
+      }
+      
+      localStorage.setItem('lt_achievements', JSON.stringify(achievements));
+    }
+
+    function showAchievement(achievementId) {
+      const achievement = ACHIEVEMENTS[achievementId];
+      if (!achievement) return;
+      
+      const popup = document.createElement('div');
+      popup.className = 'achievement-popup';
+      popup.innerHTML = `
+        <div class="achievement-icon">${achievement.icon}</div>
+        <div class="achievement-title">${achievement.title}</div>
+        <div class="achievement-desc">${achievement.desc}</div>
+      `;
+      
+      document.body.appendChild(popup);
+      
+      // Create celebration emojis
+      for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+          createFloatingEmoji(['🎉', '🎊', '✨', '🌟', '💫'][Math.floor(Math.random() * 5)], 
+            window.innerWidth / 2 + (Math.random() - 0.5) * 200, 
+            window.innerHeight / 2);
+        }, i * 100);
+      }
+      
+      setTimeout(() => {
+        popup.remove();
+      }, 3000);
+    }
+
+    function savePetState() {
+      localStorage.setItem('lt_pet', JSON.stringify(petState));
+    }
+
+    function loadPetState() {
+      const saved = localStorage.getItem('lt_pet');
+      if (saved) {
+        petState = { ...petState, ...JSON.parse(saved) };
+        const pet = document.querySelector('.productivity-pet');
+        if (pet) pet.innerHTML = petState.emoji;
+      }
+    }
+    /* ───────────────────────────────────────────────
        RENDER
     ─────────────────────────────────────────────── */
     function render() {
@@ -1699,7 +2505,16 @@
         <button class="nav-tab${state.view === 'month' ? ' active' : ''}" onclick="state.view='month';render()">Month</button>
         <button class="nav-tab${state.view === 'year' ? ' active' : ''}" onclick="state.view='year';render()">Year</button>
       </div>
-      <button class="theme-btn" onclick="toggleTheme()" title="Toggle dark mode">${themeIcon}</button>
+      <div class="theme-selector">
+        <button class="theme-btn" onclick="toggleThemeDropdown()" title="Change theme">🎨</button>
+        ${state.showThemeDropdown ? `
+          <div class="theme-dropdown show">
+            ${Object.keys(THEMES).map(theme => 
+              `<div class="theme-option ${state.currentTheme === theme ? 'active' : ''}" onclick="selectTheme('${theme}')">${THEMES[theme].name}</div>`
+            ).join('')}
+          </div>
+        ` : ''}
+      </div>
     </div>
   </div>`;
 
@@ -1711,9 +2526,14 @@
       else { h += renderYearView(); }
 
       root.innerHTML = h;
+      
+      // Update custom UI elements
+      updatePetMood();
     }
 
     render();
+    initCustomUI();
+    checkAchievements();
 
     // ── Register Service Worker (PWA) ──
     if ('serviceWorker' in navigator) {
