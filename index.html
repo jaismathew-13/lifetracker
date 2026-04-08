@@ -2300,12 +2300,32 @@
     };
 
     function initCustomUI() {
-      // Wait a bit for DOM to be ready
+      // Wait for DOM to be ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          setTimeout(createCustomElements, 100);
+        });
+      } else {
+        setTimeout(createCustomElements, 100);
+      }
+    }
+
+    function createCustomElements() {
+      console.log('Creating custom UI elements...');
+      createDinoRunner();
+      createProductivityPet();
+      loadPetState();
+      
+      // Double-check elements exist
       setTimeout(() => {
-        createDinoRunner();
-        createProductivityPet();
-        loadPetState();
-      }, 100);
+        const dino = document.querySelector('.dino-runner');
+        const pet = document.querySelector('.productivity-pet');
+        console.log('Dino exists:', !!dino);
+        console.log('Pet exists:', !!pet);
+        
+        if (!dino) createDinoRunner();
+        if (!pet) createProductivityPet();
+      }, 1000);
     }
 
     function createDinoRunner() {
@@ -2313,7 +2333,9 @@
       dino.className = 'dino-runner';
       dino.innerHTML = dinoState.emoji;
       dino.onclick = () => jumpDino();
+      dino.title = 'Click me to jump!';
       document.body.appendChild(dino);
+      console.log('Dino created:', dino);
     }
 
     function createProductivityPet() {
@@ -2321,7 +2343,9 @@
       pet.className = 'productivity-pet';
       pet.innerHTML = petState.emoji;
       pet.onclick = () => interactWithPet();
+      pet.title = 'Click me for interaction!';
       document.body.appendChild(pet);
+      console.log('Pet created:', pet);
     }
 
     function jumpDino() {
