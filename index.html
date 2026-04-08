@@ -2300,9 +2300,12 @@
     };
 
     function initCustomUI() {
-      createDinoRunner();
-      createProductivityPet();
-      loadPetState();
+      // Wait a bit for DOM to be ready
+      setTimeout(() => {
+        createDinoRunner();
+        createProductivityPet();
+        loadPetState();
+      }, 100);
     }
 
     function createDinoRunner() {
