@@ -1050,11 +1050,16 @@
 
     /* ── Misc ── */
     .empty-msg {
-      font-size: 13px;
-      color: var(--text-3);
-      padding: 16px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 28px 16px;
       text-align: center;
     }
+    .empty-msg-icon { font-size: 32px; line-height: 1; opacity: .55; }
+    .empty-msg-title { font-size: 14px; font-weight: 600; color: var(--text-2); }
+    .empty-msg-sub { font-size: 12px; color: var(--text-3); }
 
     /* ── Responsive ── */
     @media (max-width:860px) {
@@ -1145,7 +1150,12 @@
     function save() { saveData(state.data); }
 
     /* helpers */
-    function getDateKey(d) { return d.toISOString().slice(0, 10); }
+    function getDateKey(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
     function todayKey() { return getDateKey(new Date()); }
     function getWeekDates(off) {
       const t = new Date(), dow = t.getDay(), sun = new Date(t);
@@ -1460,7 +1470,7 @@
         <input class="add-task-inp" type="text" placeholder="Add task..." value="${inp}"
           oninput="state.newTask['${key}']=this.value"
           onkeydown="if(event.key==='Enter'){addTask('${key}',state.newTask['${key}']||'',state.newPri['${key}']||'medium');state.newTask['${key}']='';this.value=''}">
-        <button class="add-btn" onclick="addTask('${key}',state.newTask['${key}']||'',state.newPri['${key}']||'medium');state.newTask['${key}']='';this.previousElementSibling.value=''">+</button>
+        <button class="add-btn" onclick="addTask('${key}',state.newTask['${key}']||'',state.newPri['${key}']||'medium');state.newTask['${key}']=''">+</button>
       </div>
     </div>
     <div class="note-area">
@@ -1527,7 +1537,11 @@
 
       h += `<div class="sel-panel">
     <div class="panel-title">${DAYS[selDate.getDay()]}, ${MONTHS[selDate.getMonth()]} ${selDate.getDate()}</div>`;
-      if (!selTasks.length) h += `<div class="empty-msg">No tasks — add one below</div>`;
+      if (!selTasks.length) h += `<div class="empty-msg">
+        <div class="empty-msg-icon">📋</div>
+        <div class="empty-msg-title">No tasks yet</div>
+        <div class="empty-msg-sub">Add one below to get started</div>
+      </div>`;
       selTasks.forEach(t => {
         h += `<div class="full-task pri-${t.priority || 'medium'}" draggable="true"
       ondragstart="onDragStart('${selKey}',${t.id})"
@@ -1625,11 +1639,6 @@
         let done = 0, total = 0;
         const streak = calcHabitStreak(habit.name);
         h += `<tr><td class="habit-name-col">${habit.name}`;
-        h += `<span class="habit-days-chips">`;
-        [...habit.days].sort().forEach(dow => {
-          h += `<span class="habit-day-chip">${DAYS[dow]}</span>`;
-        });
-        h += `</span>`;
         if (streak > 0) h += `<span class="habit-streak-badge">🔥${streak}</span>`;
         h += `</td>`;
 
