@@ -1047,9 +1047,40 @@
     }
 
     /* ── Year ── */
+    .year-stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      margin-bottom: 1.4rem;
+    }
+
+    .year-stat-card {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-1);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .year-stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-1);
+      line-height: 1;
+    }
+
+    .year-stat-label {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
     .year-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 12px;
       margin-bottom: 1.4rem;
     }
@@ -1060,12 +1091,65 @@
       border-radius: var(--radius-lg);
       padding: 12px;
       box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: all .2s;
+      position: relative;
+    }
+
+    .year-month-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--green-400);
+    }
+
+    .year-month-card.current-month {
+      border-color: var(--green-400);
+      border-width: 2px;
+    }
+
+    .year-month-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
     }
 
     .year-month-name {
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 700;
+      color: var(--text-1);
+    }
+
+    .current-month-indicator {
+      font-size: 12px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .year-month-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 8px;
+      font-size: 10px;
+    }
+
+    .month-completion {
+      font-weight: 700;
+      color: var(--green-400);
+    }
+
+    .month-tasks {
+      color: var(--text-2);
+    }
+
+    .month-perfect {
+      color: var(--amber);
+      font-weight: 600;
     }
 
     .year-mini-grid {
@@ -1077,6 +1161,13 @@
     .year-mini-cell {
       aspect-ratio: 1;
       border-radius: 2px;
+      cursor: pointer;
+      transition: transform .15s;
+    }
+
+    .year-mini-cell:hover {
+      transform: scale(1.3);
+      z-index: 10;
     }
 
     .year-mini-cell.has-tasks {
@@ -1093,6 +1184,11 @@
 
     .year-mini-cell.no-month {
       background: transparent;
+    }
+
+    .year-mini-cell.today-cell {
+      border: 2px solid var(--green-400);
+      border-radius: 3px;
     }
 
     /* ── Misc ── */
@@ -2166,29 +2262,109 @@
     ─────────────────────────────────────────────── */
     function renderYearView() {
       const year = new Date().getFullYear() + state.yearOffset;
+      const today = new Date();
+      const currentMonth = today.getMonth();
+      const currentYear = today.getFullYear();
+      const isCurrentYear = year === currentYear;
+      
+      // Calculate year statistics
+      let totalTasks = 0, completedTasks = 0, productiveDays = 0;
+      for (let m = 0; m < 12; m++) {
+        for (let day = 1; day <= new Date(year, m + 1, 0).getDate(); day++) {
+          const key = `${year}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          const tasks = getTasksForDay(key);
+          if (tasks.length > 0) {
+            totalTasks += tasks.length;
+            completedTasks += tasks.filter(t => t.done).length;
+            if (completion(key) === 100) productiveDays++;
+          }
+        }
+      }
+      const yearPct = totalTasks ? Math.round(completedTasks / totalTasks * 100) : 0;
+      
       let h = `<div class="nav-row">
     <button class="nav-btn" onclick="state.yearOffset--;render()">← ${year - 1}</button>
     <span class="period-label">${year}</span>
     <button class="nav-btn" onclick="state.yearOffset++;render()">${year + 1} →</button>
-  </div><div class="year-grid">`;
+  </div>
+  <div class="year-stats-row">
+    <div class="year-stat-card">
+      <div class="year-stat-value">${yearPct}%</div>
+      <div class="year-stat-label">Year Completion</div>
+    </div>
+    <div class="year-stat-card">
+      <div class="year-stat-value">${completedTasks}</div>
+      <div class="year-stat-label">Tasks Done</div>
+    </div>
+    <div class="year-stat-card">
+      <div class="year-stat-value">${productiveDays}</div>
+      <div class="year-stat-label">Perfect Days</div>
+    </div>
+    <div class="year-stat-card">
+      <div class="year-stat-value">${Math.round(productiveDays / 12)}</div>
+      <div class="year-stat-label">Monthly Avg</div>
+    </div>
+  </div>
+  <div class="year-grid">`;
 
       for (let m = 0; m < 12; m++) {
         const firstDow = new Date(year, m, 1).getDay();
         const dim = new Date(year, m + 1, 0).getDate();
-        h += `<div class="year-month-card">
-      <div class="year-month-name">${MONTHS[m]}</div>
+        const monthKey = `${year}-${String(m + 1).padStart(2, '0')}`;
+        
+        // Calculate month statistics
+        let monthTotal = 0, monthCompleted = 0, monthPerfect = 0;
+        for (let day = 1; day <= dim; day++) {
+          const key = `${year}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          const tasks = getTasksForDay(key);
+          if (tasks.length > 0) {
+            monthTotal += tasks.length;
+            monthCompleted += tasks.filter(t => t.done).length;
+            if (completion(key) === 100) monthPerfect++;
+          }
+        }
+        const monthPct = monthTotal ? Math.round(monthCompleted / monthTotal * 100) : 0;
+        
+        const isCurrentMonth = isCurrentYear && m === currentMonth;
+        const cardClass = isCurrentMonth ? 'year-month-card current-month' : 'year-month-card';
+        
+        h += `<div class="${cardClass}" onclick="goToMonth(${year}, ${m})" title="Click to view ${MONTHS[m]} ${year}">
+      <div class="year-month-header">
+        <div class="year-month-name">${MONTHS[m]}</div>
+        ${isCurrentMonth ? '<div class="current-month-indicator">📍</div>' : ''}
+      </div>
+      <div class="year-month-stats">
+        <span class="month-completion">${monthPct}%</span>
+        <span class="month-tasks">${monthCompleted}/${monthTotal}</span>
+        ${monthPerfect > 0 ? `<span class="month-perfect">✨${monthPerfect}</span>` : ''}
+      </div>
       <div class="year-mini-grid">`;
+        
         for (let i = 0; i < firstDow; i++) h += `<div class="year-mini-cell no-month"></div>`;
         for (let day = 1; day <= dim; day++) {
           const key = `${year}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
           const tasks = getTasksForDay(key), pct = completion(key);
+          const isToday = isCurrentYear && m === currentMonth && day === today.getDate();
           const cls = tasks.length && pct === 100 ? 'all-done' : tasks.length ? 'has-tasks' : 'empty';
-          h += `<div class="year-mini-cell ${cls}" title="${key}: ${pct}%"></div>`;
+          const todayClass = isToday ? 'today-cell' : '';
+          h += `<div class="year-mini-cell ${cls} ${todayClass}" title="${key}: ${pct}%" onclick="event.stopPropagation(); selectDay('${key}')"></div>`;
         }
         h += `</div></div>`;
       }
       h += `</div>`;
       return h;
+    }
+    
+    function goToMonth(year, month) {
+      state.view = 'month';
+      state.monthOffset = (year - new Date().getFullYear()) * 12 + month - new Date().getMonth();
+      render();
+    }
+    
+    function selectDay(dateKey) {
+      state.selectedDay = dateKey;
+      state.view = 'month';
+      render();
     }
 
     /* ───────────────────────────────────────────────
