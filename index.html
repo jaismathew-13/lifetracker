@@ -1120,6 +1120,26 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 8px;
+      position: relative;
+    }
+
+    .current-date-display {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: var(--green-400);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 99px;
+      z-index: 10;
+      animation: datePulse 2s infinite;
+    }
+
+    @keyframes datePulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.8; }
     }
 
     .year-month-name {
@@ -1398,81 +1418,6 @@
     }
 
     /* ── Custom UI Elements ── */
-    .snake-game {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: var(--bg-card);
-      border: 3px solid var(--green-400);
-      border-radius: var(--radius-lg);
-      padding: 20px;
-      z-index: 10000;
-      box-shadow: var(--shadow-lg);
-      display: none;
-    }
-
-    .snake-game.show {
-      display: block;
-    }
-
-    .snake-canvas {
-      border: 2px solid var(--border-1);
-      border-radius: var(--radius-md);
-      background: var(--bg-muted);
-    }
-
-    .snake-controls {
-      margin-top: 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .snake-score {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--green-400);
-    }
-
-    .snake-btn {
-      padding: 8px 16px;
-      background: var(--green-400);
-      color: white;
-      border: none;
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      font-weight: 600;
-      transition: background .2s;
-    }
-
-    .snake-btn:hover {
-      background: var(--green-500);
-    }
-
-    .snake-trigger {
-      position: fixed;
-      bottom: 100px;
-      right: 20px;
-      width: 50px;
-      height: 50px;
-      background: var(--bg-card);
-      border: 2px solid var(--green-400);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      cursor: pointer;
-      transition: all .3s;
-      z-index: 1000;
-      box-shadow: var(--shadow-md);
-    }
-
-    .snake-trigger:hover {
-      transform: scale(1.1) rotate(10deg);
-      box-shadow: var(--shadow-lg);
-    }
 
     .dino-runner {
       position: fixed;
@@ -2435,10 +2380,15 @@
         const isCurrentMonth = isCurrentYear && m === currentMonth;
         const cardClass = isCurrentMonth ? 'year-month-card current-month' : 'year-month-card';
         
+        const currentDate = new Date();
+        const isCurrentDate = isCurrentYear && m === currentMonth && currentDate.getDate() <= dim;
+        const todayDate = isCurrentDate ? currentDate.getDate() : null;
+        
         h += `<div class="${cardClass}" onclick="goToMonth(${year}, ${m})" title="Click to view ${MONTHS[m]} ${year}">
       <div class="year-month-header">
         <div class="year-month-name">${MONTHS[m]}</div>
         ${isCurrentMonth ? '<div class="current-month-indicator">📍</div>' : ''}
+        ${isCurrentDate && todayDate ? `<div class="current-date-display">${todayDate}</div>` : ''}
       </div>
       <div class="year-month-stats">
         <span class="month-completion">${monthPct}%</span>
@@ -2571,19 +2521,6 @@
       emoji: '🌱'
     };
 
-    let snakeGame = {
-      canvas: null,
-      ctx: null,
-      gridSize: 20,
-      tileCount: 20,
-      snake: [{x: 10, y: 10}],
-      food: {x: 15, y: 15},
-      dx: 0,
-      dy: 0,
-      score: 0,
-      gameRunning: false,
-      gameLoop: null
-    };
 
     const ACHIEVEMENTS = {
       firstTask: { icon: '🎯', title: 'First Task!', desc: 'You completed your first task!' },
@@ -2611,22 +2548,17 @@
       console.log('Creating custom UI elements...');
       createDinoRunner();
       createProductivityPet();
-      createSnakeTrigger();
-      createSnakeGame();
       loadPetState();
       
       // Double-check elements exist
       setTimeout(() => {
         const dino = document.querySelector('.dino-runner');
         const pet = document.querySelector('.productivity-pet');
-        const snake = document.querySelector('.snake-trigger');
         console.log('Dino exists:', !!dino);
         console.log('Pet exists:', !!pet);
-        console.log('Snake exists:', !!snake);
         
         if (!dino) createDinoRunner();
         if (!pet) createProductivityPet();
-        if (!snake) createSnakeTrigger();
       }, 1000);
     }
 
@@ -2808,173 +2740,6 @@
       localStorage.setItem('lt_pet', JSON.stringify(petState));
     }
 
-    function createSnakeTrigger() {
-      const trigger = document.createElement('div');
-      trigger.className = 'snake-trigger';
-      trigger.innerHTML = '🐍';
-      trigger.onclick = () => toggleSnakeGame();
-      trigger.title = 'Click to play Snake!';
-      document.body.appendChild(trigger);
-    }
-
-    function createSnakeGame() {
-      const game = document.createElement('div');
-      game.className = 'snake-game';
-      game.innerHTML = `
-        <canvas class="snake-canvas" width="400" height="400"></canvas>
-        <div class="snake-controls">
-          <div class="snake-score">Score: <span id="snake-score">0</span></div>
-          <div>
-            <button class="snake-btn" onclick="startSnakeGame()">Start</button>
-            <button class="snake-btn" onclick="closeSnakeGame()">Close</button>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(game);
-      
-      snakeGame.canvas = game.querySelector('.snake-canvas');
-      snakeGame.ctx = snakeGame.canvas.getContext('2d');
-      
-      // Add keyboard controls
-      document.addEventListener('keydown', handleSnakeControls);
-    }
-
-    function toggleSnakeGame() {
-      const game = document.querySelector('.snake-game');
-      game.classList.toggle('show');
-      if (game.classList.contains('show')) {
-        drawSnakeGame();
-      }
-    }
-
-    function closeSnakeGame() {
-      const game = document.querySelector('.snake-game');
-      game.classList.remove('show');
-      if (snakeGame.gameLoop) {
-        clearInterval(snakeGame.gameLoop);
-        snakeGame.gameRunning = false;
-      }
-    }
-
-    function startSnakeGame() {
-      snakeGame.snake = [{x: 10, y: 10}];
-      snakeGame.food = {x: 15, y: 15};
-      snakeGame.dx = 0;
-      snakeGame.dy = 0;
-      snakeGame.score = 0;
-      snakeGame.gameRunning = true;
-      
-      document.getElementById('snake-score').textContent = '0';
-      
-      if (snakeGame.gameLoop) {
-        clearInterval(snakeGame.gameLoop);
-      }
-      
-      snakeGame.gameLoop = setInterval(updateSnakeGame, 100);
-    }
-
-    function handleSnakeControls(e) {
-      if (!snakeGame.gameRunning) return;
-      
-      switch(e.key) {
-        case 'ArrowUp':
-          if (snakeGame.dy === 0) {
-            snakeGame.dx = 0;
-            snakeGame.dy = -1;
-          }
-          break;
-        case 'ArrowDown':
-          if (snakeGame.dy === 0) {
-            snakeGame.dx = 0;
-            snakeGame.dy = 1;
-          }
-          break;
-        case 'ArrowLeft':
-          if (snakeGame.dx === 0) {
-            snakeGame.dx = -1;
-            snakeGame.dy = 0;
-          }
-          break;
-        case 'ArrowRight':
-          if (snakeGame.dx === 0) {
-            snakeGame.dx = 1;
-            snakeGame.dy = 0;
-          }
-          break;
-      }
-    }
-
-    function updateSnakeGame() {
-      // Move snake
-      const head = {x: snakeGame.snake[0].x + snakeGame.dx, y: snakeGame.snake[0].y + snakeGame.dy};
-      
-      // Check wall collision
-      if (head.x < 0 || head.x >= snakeGame.tileCount || head.y < 0 || head.y >= snakeGame.tileCount) {
-        gameOver();
-        return;
-      }
-      
-      // Check self collision
-      for (let segment of snakeGame.snake) {
-        if (head.x === segment.x && head.y === segment.y) {
-          gameOver();
-          return;
-        }
-      }
-      
-      snakeGame.snake.unshift(head);
-      
-      // Check food collision
-      if (head.x === snakeGame.food.x && head.y === snakeGame.food.y) {
-        snakeGame.score++;
-        document.getElementById('snake-score').textContent = snakeGame.score;
-        generateFood();
-      } else {
-        snakeGame.snake.pop();
-      }
-      
-      drawSnakeGame();
-    }
-
-    function drawSnakeGame() {
-      // Clear canvas
-      snakeGame.ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-muted');
-      snakeGame.ctx.fillRect(0, 0, snakeGame.canvas.width, snakeGame.canvas.height);
-      
-      // Draw snake
-      snakeGame.ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--green-400');
-      for (let segment of snakeGame.snake) {
-        snakeGame.ctx.fillRect(segment.x * snakeGame.gridSize, segment.y * snakeGame.gridSize, snakeGame.gridSize - 2, snakeGame.gridSize - 2);
-      }
-      
-      // Draw food
-      snakeGame.ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--red-400');
-      snakeGame.ctx.fillRect(snakeGame.food.x * snakeGame.gridSize, snakeGame.food.y * snakeGame.gridSize, snakeGame.gridSize - 2, snakeGame.gridSize - 2);
-    }
-
-    function generateFood() {
-      snakeGame.food = {
-        x: Math.floor(Math.random() * snakeGame.tileCount),
-        y: Math.floor(Math.random() * snakeGame.tileCount)
-      };
-      
-      // Make sure food doesn't spawn on snake
-      for (let segment of snakeGame.snake) {
-        if (snakeGame.food.x === segment.x && snakeGame.food.y === segment.y) {
-          generateFood();
-          return;
-        }
-      }
-    }
-
-    function gameOver() {
-      snakeGame.gameRunning = false;
-      clearInterval(snakeGame.gameLoop);
-      createFloatingEmoji('💀', window.innerWidth / 2, window.innerHeight / 2);
-      setTimeout(() => {
-        alert(`Game Over! Score: ${snakeGame.score}`);
-      }, 100);
-    }
 
     function loadPetState() {
       const saved = localStorage.getItem('lt_pet');
