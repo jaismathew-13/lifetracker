@@ -1342,10 +1342,89 @@
 
     /* ── Timer Settings ── */
     .timer-settings {
+      margin-top: 8px;
       display: flex;
-      gap: 8px;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .timer-presets {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .preset-label {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-right: 8px;
+    }
+
+    .preset-btn {
+      padding: 6px 12px;
+      background: var(--green-100);
+      border: 1px solid var(--green-300);
+      border-radius: var(--radius-md);
+      color: var(--green-700);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .preset-btn:hover:not(:disabled) {
+      background: var(--green-400);
+      border-color: var(--green-500);
+      color: white;
+    }
+
+    .preset-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .timer-inputs {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+    }
+
+    .timer-input-group {
+      display: flex;
       align-items: center;
-      margin-left: auto;
+      gap: 6px;
+    }
+
+    .timer-unit {
+      font-size: 10px;
+      color: var(--text-3);
+      font-weight: 500;
+    }
+
+    .timer-goals {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .goal-label {
+      font-size: 11px;
+      color: var(--text-3);
+    }
+
+    .goal-input {
+      width: 60px;
+      padding: 4px 8px;
+      border: 1px solid var(--border-1);
+      border-radius: var(--radius-md);
+      background: var(--bg-card);
+      color: var(--text-1);
+      font-size: 12px;
+    }
+
+    .goal-text {
+      font-size: 10px;
+      color: var(--text-3);
     }
 
     .timer-input {
@@ -1698,7 +1777,8 @@
         sessions: 0,
         iv: null,
         workDuration: 25,
-        breakDuration: 5
+        breakDuration: 5,
+        dailyGoal: 4
       },
       prevPct: {},
       dragSrc: null,
@@ -1917,6 +1997,12 @@
 
     function startTimer() {
       if (state.timer.running) return;
+      
+      // Clear any existing timer interval to prevent multiple timers
+      if (state.timer.iv) {
+        clearInterval(state.timer.iv);
+      }
+      
       if ('Notification' in window && Notification.permission === 'default')
         Notification.requestPermission();
       state.timer.running = true;
@@ -1936,6 +2022,32 @@
       renderTimerWidget();
     }
 
+    function setTimerPreset(workMinutes, breakMinutes) {
+      if (timer.running) return;
+      
+      timer.workDuration = workMinutes;
+      timer.breakDuration = breakMinutes;
+      
+      // Reset timer to new durations
+      if (timer.running) {
+        pauseTimer();
+      }
+      
+      timer.secs = workMinutes * 60;
+      timer.total = workMinutes * 60;
+      
+      save();
+      renderTimerWidget();
+    }
+
+    function updateTimerDuration() {
+      // Update timer if not running
+      if (!timer.running) {
+        timer.secs = timer.mode === 'work' ? timer.workDuration * 60 : timer.breakDuration * 60;
+        timer.total = timer.secs;
+      }
+    }
+
     function buildTimerHTML() {
       const tm = state.timer;
       const pct = Math.round((1 - tm.secs / tm.total) * 100);
@@ -1953,14 +2065,35 @@
       <div class="timer-sessions">Sessions today: <strong>${tm.sessions}</strong></div>
     </div>
     <div class="timer-settings">
-      <span class="timer-label">Work:</span>
-      <input type="number" class="timer-input" value="${tm.workDuration}" min="1" max="60" 
-        onchange="state.timer.workDuration=parseInt(this.value);updateTimerDuration()" 
-        ${tm.running ? 'disabled' : ''}>
-      <span class="timer-label">Break:</span>
-      <input type="number" class="timer-input" value="${tm.breakDuration}" min="1" max="30" 
-        onchange="state.timer.breakDuration=parseInt(this.value);updateTimerDuration()" 
-        ${tm.running ? 'disabled' : ''}>
+      <div class="timer-presets">
+        <span class="preset-label">Quick Sets:</span>
+        <button class="preset-btn" onclick="setTimerPreset(25, 5)" ${tm.running ? 'disabled' : ''}>25/5</button>
+        <button class="preset-btn" onclick="setTimerPreset(50, 10)" ${tm.running ? 'disabled' : ''}>50/10</button>
+        <button class="preset-btn" onclick="setTimerPreset(90, 20)" ${tm.running ? 'disabled' : ''}>90/20</button>
+      </div>
+      <div class="timer-inputs">
+        <div class="timer-input-group">
+          <span class="timer-label">Work:</span>
+          <input type="number" class="timer-input" value="${tm.workDuration}" min="1" max="60" 
+            onchange="state.timer.workDuration=parseInt(this.value);updateTimerDuration()" 
+            ${tm.running ? 'disabled' : ''}>
+          <span class="timer-unit">min</span>
+        </div>
+        <div class="timer-input-group">
+          <span class="timer-label">Break:</span>
+          <input type="number" class="timer-input" value="${tm.breakDuration}" min="1" max="30" 
+            onchange="state.timer.breakDuration=parseInt(this.value);updateTimerDuration()" 
+            ${tm.running ? 'disabled' : ''}>
+          <span class="timer-unit">min</span>
+        </div>
+      </div>
+      <div class="timer-goals">
+        <span class="goal-label">Daily Goal:</span>
+        <input type="number" class="goal-input" value="${state.timer.dailyGoal || 4}" min="1" max="20" 
+          onchange="state.timer.dailyGoal=parseInt(this.value);save()" 
+          placeholder="4">
+        <span class="goal-text">sessions</span>
+      </div>
     </div>
     <div class="timer-controls">
       ${tm.running
