@@ -982,8 +982,8 @@
       padding: 4px 8px;
     }
 
-    .habit-inactive { background: var(--bg-muted); }
-    .habit-na { font-size: 14px; color: var(--border-1); }
+    .habit-inactive { background: var(--bg-muted); opacity: 0.4; }
+    .habit-na { font-size: 14px; color: var(--text-3); opacity: 0.6; }
 
     /* day chips on each habit row */
     .habit-days-chips { display: inline-flex; gap: 3px; margin-left: 6px; flex-wrap: wrap; vertical-align: middle; }
@@ -1179,11 +1179,21 @@
     }
 
     .year-mini-cell.empty {
-      background: var(--bg-muted);
+      background: linear-gradient(135deg, var(--bg-muted) 0%, var(--bg-card) 100%);
+      border: 1px solid var(--border-2);
+      opacity: 0.6;
+      transition: all .15s;
+    }
+    
+    .year-mini-cell.empty:hover {
+      opacity: 1;
+      border-color: var(--border-1);
+      background: linear-gradient(135deg, var(--bg-muted) 0%, var(--bg-hover) 100%);
     }
 
     .year-mini-cell.no-month {
       background: transparent;
+      border: none;
     }
 
     .year-mini-cell.today-cell {
@@ -2006,12 +2016,25 @@
       save(); render();
     }
     function addHabit(name, days) {
-      if (!name.trim()) return;
-      if (state.data.habits.some(h => h.name === name.trim())) return;
+      if (!name || !name.trim()) return;
+      const trimmedName = name.trim();
+      if (state.data.habits.some(h => h.name === trimmedName)) return;
       if (!days || !days.length) days = [0, 1, 2, 3, 4, 5, 6];
-      state.data.habits.push({ name: name.trim(), days });
+      
+      state.data.habits.push({ name: trimmedName, days });
       state.newHabitDays = [0, 1, 2, 3, 4, 5, 6];
-      save(); render();
+      save(); 
+      
+      // Clear input and refocus after render
+      setTimeout(() => {
+        const input = document.getElementById('habit-inp');
+        if (input) {
+          input.value = '';
+          input.focus();
+        }
+      }, 10);
+      
+      render();
     }
     function removeHabit(name) {
       state.data.habits = state.data.habits.filter(h => h.name !== name);
@@ -2417,7 +2440,7 @@
           if (isActive && isPast) { total++; if (checked) done++; }
 
           if (!isActive) {
-            h += `<td class="habit-check habit-inactive"><span class="habit-na">—</span></td>`;
+            h += `<td class="habit-check habit-inactive"><span class="habit-na">⭕</span></td>`;
           } else {
             h += `<td class="habit-check"><input type="checkbox" ${checked ? 'checked' : ''} ${!isPast ? 'disabled' : ''} onchange="toggleHabit('${k}','${habit.name}')"></td>`;
           }
@@ -2440,8 +2463,8 @@
       h += `</div>
     <div class="add-habit-row">
       <input type="text" placeholder="Habit name..." id="habit-inp"
-        onkeydown="if(event.key==='Enter'){addHabit(this.value,[...state.newHabitDays]);this.value=''}">
-      <button onclick="var el=document.getElementById('habit-inp');addHabit(el.value,[...state.newHabitDays]);el.value=''">Add Habit</button>
+        onkeydown="if(event.key==='Enter'){event.preventDefault();addHabit(this.value,[...state.newHabitDays]);}">
+      <button onclick="var el=document.getElementById('habit-inp');addHabit(el.value,[...state.newHabitDays]);">Add Habit</button>
     </div>
   </div></div>`;
       return h;
