@@ -1847,10 +1847,6 @@
       const tm = state.timer;
       if (tm.secs > 0) { 
         tm.secs--; 
-        // Play tick sound for last 3 seconds
-        if (tm.secs <= 3 && tm.secs > 0) {
-          playTickSound();
-        }
       }
       else {
         tm.secs = tm.mode === 'work' ? tm.workDuration * 60 : tm.breakDuration * 60;
@@ -1918,25 +1914,6 @@
       }
     }
 
-    function playTickSound() {
-      try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.value = 400;
-        oscillator.type = 'sine';
-        gainNode.gain.value = 0.1;
-        
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.1);
-      } catch (e) {
-        console.log('Audio not supported:', e);
-      }
-    }
 
     function startTimer() {
       if (state.timer.running) return;
