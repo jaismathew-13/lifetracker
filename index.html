@@ -1845,14 +1845,23 @@
 
     function timerTick() {
       const tm = state.timer;
-      if (tm.secs > 0) { tm.secs--; }
+      if (tm.secs > 0) { 
+        tm.secs--; 
+        // Play tick sound for last 3 seconds
+        if (tm.secs <= 3 && tm.secs > 0) {
+          playTickSound();
+        }
+      }
       else {
-        if (tm.mode === 'work') {
-          tm.sessions++; tm.mode = 'brk'; tm.secs = tm.breakDuration * 60; tm.total = tm.breakDuration * 60;
-          notify('LifeTracker', 'Break time! Take 5 minutes 🌿');
+        tm.secs = tm.mode === 'work' ? tm.workDuration * 60 : tm.breakDuration * 60;
+        tm.mode = tm.mode === 'work' ? 'break' : 'work';
+        tm.sessions = tm.mode === 'work' ? tm.sessions + 1 : tm.sessions;
+        if (tm.mode === 'break') {
+          notify('Break Over!', 'Time to get back to work!');
+          playAlarmSound();
         } else {
-          tm.mode = 'work'; tm.secs = tm.workDuration * 60; tm.total = tm.workDuration * 60;
-          notify('LifeTracker', 'Focus time! 25 minutes 🎯');
+          notify('Work Session Complete!', 'Great job! Time for a break.');
+          playAlarmSound();
         }
       }
       renderTimerWidget();
@@ -1861,6 +1870,72 @@
     function notify(title, body) {
       if ('Notification' in window && Notification.permission === 'granted')
         new Notification(title, { body });
+    }
+
+    function playAlarmSound() {
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+        gainNode.gain.value = 0.3;
+        
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.5);
+        
+        // Second beep
+        setTimeout(() => {
+          const osc2 = audioContext.createOscillator();
+          const gain2 = audioContext.createGain();
+          osc2.connect(gain2);
+          gain2.connect(audioContext.destination);
+          osc2.frequency.value = 600;
+          osc2.type = 'sine';
+          gain2.gain.value = 0.3;
+          osc2.start();
+          osc2.stop(audioContext.currentTime + 0.3);
+        }, 600);
+        
+        // Third beep
+        setTimeout(() => {
+          const osc3 = audioContext.createOscillator();
+          const gain3 = audioContext.createGain();
+          osc3.connect(gain3);
+          gain3.connect(audioContext.destination);
+          osc3.frequency.value = 1000;
+          osc3.type = 'sine';
+          gain3.gain.value = 0.3;
+          osc3.start();
+          osc3.stop(audioContext.currentTime + 0.3);
+        }, 900);
+      } catch (e) {
+        console.log('Audio not supported:', e);
+      }
+    }
+
+    function playTickSound() {
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 400;
+        oscillator.type = 'sine';
+        gainNode.gain.value = 0.1;
+        
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.1);
+      } catch (e) {
+        console.log('Audio not supported:', e);
+      }
     }
 
     function startTimer() {
