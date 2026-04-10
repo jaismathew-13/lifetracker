@@ -1496,6 +1496,141 @@
       background: var(--green-600);
     }
 
+    /* ── AI Chatbot ── */
+    .chatbot-container {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: 350px;
+      height: 500px;
+      background: var(--bg-card);
+      border: 2px solid var(--green-400);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      display: none;
+      z-index: 9999;
+      flex-direction: column;
+    }
+
+    .chatbot-container.show {
+      display: flex;
+    }
+
+    .chatbot-header {
+      background: var(--green-400);
+      color: white;
+      padding: 12px 16px;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chatbot-title {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .chatbot-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chatbot-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .chat-message {
+      max-width: 80%;
+      padding: 8px 12px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .chat-message.user {
+      background: var(--green-400);
+      color: white;
+      align-self: flex-end;
+    }
+
+    .chat-message.bot {
+      background: var(--bg-muted);
+      color: var(--text-1);
+      align-self: flex-start;
+      border: 1px solid var(--border-1);
+    }
+
+    .chatbot-input {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border-1);
+      display: flex;
+      gap: 8px;
+    }
+
+    .chatbot-input-field {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid var(--border-1);
+      border-radius: var(--radius-md);
+      background: var(--bg-input);
+      color: var(--text-1);
+      font-size: 13px;
+    }
+
+    .chatbot-send {
+      padding: 8px 16px;
+      background: var(--green-400);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-weight: 600;
+      transition: background .2s;
+    }
+
+    .chatbot-send:hover {
+      background: var(--green-500);
+    }
+
+    .chatbot-trigger {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: 60px;
+      height: 60px;
+      background: var(--green-400);
+      border: 2px solid var(--green-500);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all .3s;
+      z-index: 1000;
+      box-shadow: var(--shadow-md);
+    }
+
+    .chatbot-trigger:hover {
+      transform: scale(1.1);
+      box-shadow: var(--shadow-lg);
+    }
+
     /* ── Custom UI Elements ── */
 
     .dino-runner {
@@ -2733,17 +2868,21 @@
       console.log('Creating custom UI elements...');
       createDinoRunner();
       createProductivityPet();
+      createChatbot();
       loadPetState();
       
       // Double-check elements exist
       setTimeout(() => {
         const dino = document.querySelector('.dino-runner');
         const pet = document.querySelector('.productivity-pet');
+        const chatbot = document.querySelector('.chatbot-trigger');
         console.log('Dino exists:', !!dino);
         console.log('Pet exists:', !!pet);
+        console.log('Chatbot exists:', !!chatbot);
         
         if (!dino) createDinoRunner();
         if (!pet) createProductivityPet();
+        if (!chatbot) createChatbot();
       }, 1000);
     }
 
@@ -2925,6 +3064,522 @@
       localStorage.setItem('lt_pet', JSON.stringify(petState));
     }
 
+
+    function createChatbot() {
+      // Create chatbot trigger button
+      const trigger = document.createElement('div');
+      trigger.className = 'chatbot-trigger';
+      trigger.innerHTML = '🤖';
+      trigger.onclick = () => toggleChatbot();
+      trigger.title = 'Click to chat with AI Assistant!';
+      document.body.appendChild(trigger);
+
+      // Create chatbot container
+      const container = document.createElement('div');
+      container.className = 'chatbot-container';
+      container.innerHTML = `
+        <div class="chatbot-header">
+          <div class="chatbot-title">🤖 AI Assistant</div>
+          <button class="chatbot-close" onclick="toggleChatbot()">×</button>
+        </div>
+        <div class="chatbot-messages" id="chatbot-messages"></div>
+        <div class="chatbot-input">
+          <input type="text" class="chatbot-input-field" id="chatbot-input" 
+            placeholder="Ask me to add tasks, habits, or schedule events..." 
+            onkeydown="if(event.key==='Enter'){sendChatMessage();}">
+          <button class="chatbot-send" onclick="sendChatMessage()">Send</button>
+        </div>
+      `;
+      document.body.appendChild(container);
+
+      // Add welcome message
+      addChatMessage('bot', 'Hello! I\'m your AI assistant. I can help you:\n\n• Add tasks: "Add meeting with John tomorrow at 2pm"\n• Create habits: "Create habit exercise daily at 7am"\n• Schedule events: "Schedule dentist appointment next Friday"\n• Ask questions: "What tasks do I have today?"\n\nHow can I help you today?');
+    }
+
+    function toggleChatbot() {
+      const container = document.querySelector('.chatbot-container');
+      container.classList.toggle('show');
+      if (container.classList.contains('show')) {
+        document.getElementById('chatbot-input').focus();
+      }
+    }
+
+    function addChatMessage(sender, message) {
+      const messagesContainer = document.getElementById('chatbot-messages');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `chat-message ${sender}`;
+      messageDiv.textContent = message;
+      messagesContainer.appendChild(messageDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function sendChatMessage() {
+      const input = document.getElementById('chatbot-input');
+      const message = input.value.trim();
+      if (!message) return;
+
+      addChatMessage('user', message);
+      input.value = '';
+
+      // Process the message and generate response
+      setTimeout(() => {
+        const response = processUserMessage(message);
+        addChatMessage('bot', response);
+      }, 500);
+    }
+
+    function processUserMessage(message) {
+      const lowerMessage = message.toLowerCase();
+      
+      // Exam timetable processing
+      if (lowerMessage.includes('exam') || lowerMessage.includes('study plan') || lowerMessage.includes('exam timetable')) {
+        return handleExamTimetableProcessing(message);
+      }
+      
+      // Regular timetable processing
+      if (lowerMessage.includes('timetable') || lowerMessage.includes('schedule') || lowerMessage.includes('weekly') || 
+          (lowerMessage.includes('monday') && lowerMessage.includes('tuesday')) || 
+          (lowerMessage.includes('9am') && lowerMessage.includes('10am'))) {
+        return handleTimetableProcessing(message);
+      }
+      
+      // Task creation patterns
+      if (lowerMessage.includes('add') && (lowerMessage.includes('task') || lowerMessage.includes('todo'))) {
+        return handleTaskCreation(message);
+      }
+      
+      // Habit creation patterns
+      if (lowerMessage.includes('habit') || lowerMessage.includes('create habit')) {
+        return handleHabitCreation(message);
+      }
+      
+      // Event scheduling patterns
+      if (lowerMessage.includes('schedule') || lowerMessage.includes('appointment') || lowerMessage.includes('meeting')) {
+        return handleEventScheduling(message);
+      }
+      
+      // Query patterns
+      if (lowerMessage.includes('what') || lowerMessage.includes('show') || lowerMessage.includes('tasks')) {
+        return handleQuery(message);
+      }
+      
+      // Help
+      if (lowerMessage.includes('help')) {
+        return 'I can help you with:\n\n• Adding tasks: "Add task review presentation tomorrow"\n• Creating habits: "Create habit read books daily"\n• Scheduling events: "Schedule meeting with team Friday 3pm"\n• Processing timetables: "Monday 9am Math, 10am English..."\n• Exam timetables: "Math exam on Friday, Science exam next Monday"\n• Study planning: "Create study plan for my exams"\n• Checking your schedule: "What do I have today?"\n\nTry asking me something!';
+      }
+      
+      return 'I\'m not sure how to help with that. Try asking me to add a task, create a habit, or schedule an event. Type "help" for more examples.';
+    }
+
+    function handleTaskCreation(message) {
+      // Extract task text
+      const taskMatch = message.match(/(?:add|create)\s+(?:task|todo)\s+(.+?)(?:\s+(?:for|on|at)\s+(.+))?$/i);
+      if (!taskMatch) {
+        return 'I need more details. Try: "Add task review presentation tomorrow"';
+      }
+      
+      const taskText = taskMatch[1].trim();
+      const dateInfo = taskMatch[2];
+      
+      // Determine target date
+      let targetDate = new Date();
+      if (dateInfo) {
+        targetDate = parseDateFromText(dateInfo);
+      }
+      
+      const dateKey = getDateKey(targetDate);
+      addTask(dateKey, taskText, 'medium', null, 'none');
+      
+      return `✅ Added task "${taskText}" for ${formatDate(targetDate)}`;
+    }
+
+    function handleHabitCreation(message) {
+      // Extract habit name and schedule
+      const habitMatch = message.match(/(?:create|add)\s+habit\s+(.+?)(?:\s+(?:daily|weekly|on)\s+(.+))?$/i);
+      if (!habitMatch) {
+        return 'I need more details. Try: "Create habit exercise daily at 7am"';
+      }
+      
+      const habitName = habitMatch[1].trim();
+      const scheduleInfo = habitMatch[2];
+      
+      // Default to daily if no schedule specified
+      let days = [0, 1, 2, 3, 4, 5, 6]; // All days
+      if (scheduleInfo) {
+        days = parseDaysFromText(scheduleInfo);
+      }
+      
+      addHabit(habitName, days);
+      
+      return `✅ Created habit "${habitName}" for ${formatDays(days)}`;
+    }
+
+    function handleEventScheduling(message) {
+      // Extract event details
+      const eventMatch = message.match(/(?:schedule|add)\s+(.+?)(?:\s+(?:for|on|at)\s+(.+?)(?:\s+(?:at|time)\s+(.+))?)?$/i);
+      if (!eventMatch) {
+        return 'I need more details. Try: "Schedule meeting with John Friday at 2pm"';
+      }
+      
+      const eventText = eventMatch[1].trim();
+      const dateInfo = eventMatch[2];
+      const timeInfo = eventMatch[3];
+      
+      // Determine target date and time
+      let targetDate = new Date();
+      if (dateInfo) {
+        targetDate = parseDateFromText(dateInfo);
+      }
+      
+      const dateKey = getDateKey(targetDate);
+      const taskTime = timeInfo || '9:00 AM';
+      
+      addTask(dateKey, eventText, 'high', taskTime, 'none');
+      
+      return `✅ Scheduled "${eventText}" for ${formatDate(targetDate)} at ${taskTime}`;
+    }
+
+    function handleQuery(message) {
+      const lowerMessage = message.toLowerCase();
+      const today = new Date();
+      const todayKey = getDateKey(today);
+      const todayTasks = getTasksForDay(todayKey);
+      
+      if (lowerMessage.includes('today')) {
+        if (todayTasks.length === 0) {
+          return 'You have no tasks for today!';
+        }
+        const taskList = todayTasks.map(t => `• ${t.text}${t.done ? ' ✅' : ''}`).join('\n');
+        return `Today's tasks:\n\n${taskList}`;
+      }
+      
+      return 'You can ask about your tasks for today, or try "help" for more options.';
+    }
+
+    function parseDateFromText(dateText) {
+      const today = new Date();
+      const lowerText = dateText.toLowerCase();
+      
+      // Today, tomorrow
+      if (lowerText.includes('today')) return today;
+      if (lowerText.includes('tomorrow')) {
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        return tomorrow;
+      }
+      
+      // Day names
+      const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      for (let i = 0; i < dayNames.length; i++) {
+        if (lowerText.includes(dayNames[i])) {
+          const targetDay = new Date(today);
+          const currentDay = today.getDay();
+          const targetDayNum = i;
+          let daysToAdd = targetDayNum - currentDay;
+          if (daysToAdd <= 0) daysToAdd += 7;
+          targetDay.setDate(targetDay.getDate() + daysToAdd);
+          return targetDay;
+        }
+      }
+      
+      return today; // Default to today
+    }
+
+    function handleTimetableProcessing(message) {
+      try {
+        const schedule = parseTimetable(message);
+        if (schedule.length === 0) {
+          return 'I couldn\'t parse your timetable. Try this format:\n\nMonday: 9am Math, 11am English, 2pm Science\nTuesday: 10am History, 1pm Math, 3pm PE\n...';
+        }
+        
+        let processedCount = 0;
+        let summary = '✅ Processed your timetable:\n\n';
+        
+        schedule.forEach(item => {
+          try {
+            const dateKey = getDateKey(item.date);
+            addTask(dateKey, item.subject, 'medium', item.time, 'weekly');
+            summary += `• ${formatDate(item.date)} ${item.time}: ${item.subject}\n`;
+            processedCount++;
+          } catch (error) {
+            console.log('Error adding schedule item:', error);
+          }
+        });
+        
+        summary += `\n📅 Added ${processedCount} recurring classes to your calendar!`;
+        return summary;
+        
+      } catch (error) {
+        return 'Error processing timetable. Please check the format and try again.';
+      }
+    }
+
+    function parseTimetable(text) {
+      const schedule = [];
+      const lines = text.split('\n').filter(line => line.trim());
+      const today = new Date();
+      
+      lines.forEach(line => {
+        // Parse different timetable formats
+        const formats = [
+          // "Monday: 9am Math, 11am English"
+          /^(\w+):\s*(.+)$/,
+          // "Monday 9am Math 11am English"
+          /^(\w+)\s+(.+)$/,
+          // "9am Math (Monday)"
+          /^(\d+\s*[ap]m)\s+(.+)\s*\((\w+)\)/
+        ];
+        
+        for (const format of formats) {
+          const match = line.match(format);
+          if (match) {
+            let dayName, timeSubjects;
+            
+            if (format === formats[2]) {
+              // "9am Math (Monday)" format
+              const [, time, subject, day] = match;
+              dayName = day;
+              timeSubjects = `${time} ${subject}`;
+            } else {
+              // Other formats
+              const [, day, subjects] = match;
+              dayName = day;
+              timeSubjects = subjects;
+            }
+            
+            const dayNum = getDayNumber(dayName);
+            if (dayNum !== -1) {
+              const targetDate = getNextDateForDay(dayNum);
+              const subjects = parseTimeSubjects(timeSubjects);
+              
+              subjects.forEach(({time, subject}) => {
+                if (time && subject) {
+                  schedule.push({
+                    date: targetDate,
+                    time: formatTime(time),
+                    subject: subject.trim()
+                  });
+                }
+              });
+            }
+            break;
+          }
+        }
+      });
+      
+      return schedule;
+    }
+
+    function parseTimeSubjects(text) {
+      const subjects = [];
+      
+      // Split by commas and parse time-subject pairs
+      const pairs = text.split(',').map(pair => pair.trim());
+      
+      pairs.forEach(pair => {
+        // "9am Math" or "Math 9am"
+        const timeSubjectMatch = pair.match(/^(\d+\s*[ap]m)\s+(.+)$|^(.+)\s+(\d+\s*[ap]m)$/);
+        if (timeSubjectMatch) {
+          const [, time1, subject1, subject2, time2] = timeSubjectMatch;
+          const time = time1 || time2;
+          const subject = subject1 || subject2;
+          
+          if (time && subject) {
+            subjects.push({ time, subject });
+          }
+        }
+      });
+      
+      return subjects;
+    }
+
+    function getDayNumber(dayName) {
+      const dayMap = {
+        'monday': 1, 'tuesday': 2, 'wednesday': 3, 'thursday': 4,
+        'friday': 5, 'saturday': 6, 'sunday': 0,
+        'mon': 1, 'tue': 2, 'wed': 3, 'thu': 4,
+        'fri': 5, 'sat': 6, 'sun': 0
+      };
+      return dayMap[dayName.toLowerCase()] || -1;
+    }
+
+    function getNextDateForDay(dayNum) {
+      const today = new Date();
+      const currentDay = today.getDay();
+      let daysToAdd = dayNum - currentDay;
+      if (daysToAdd <= 0) daysToAdd += 7;
+      const targetDate = new Date(today);
+      targetDate.setDate(targetDate.getDate() + daysToAdd);
+      return targetDate;
+    }
+
+    function handleExamTimetableProcessing(message) {
+      try {
+        const exams = parseExamTimetable(message);
+        if (exams.length === 0) {
+          return 'I couldn\'t parse your exam timetable. Try this format:\n\nMath exam on Friday 10am\nScience exam next Monday 2pm\nEnglish exam on Wednesday 9am\n\nOr: "Create study plan for my exams"';
+        }
+        
+        const studyPlan = generateStudyPlan(exams);
+        let summary = '📚 Created your study plan:\n\n';
+        
+        // Add exam reminders
+        exams.forEach(exam => {
+          const dateKey = getDateKey(exam.date);
+          addTask(dateKey, `📝 ${exam.subject} Exam`, 'high', exam.time, 'none');
+          summary += `📝 Exam: ${exam.subject} - ${formatDate(exam.date)} at ${exam.time}\n`;
+        });
+        
+        // Add study sessions
+        studyPlan.forEach(session => {
+          const dateKey = getDateKey(session.date);
+          addTask(dateKey, `📚 Study ${session.subject}`, 'medium', session.time, 'none');
+          summary += `📚 Study: ${session.subject} - ${formatDate(session.date)} at ${session.time}\n`;
+        });
+        
+        summary += `\n✨ Generated ${exams.length} exam reminders and ${studyPlan.length} study sessions!`;
+        return summary;
+        
+      } catch (error) {
+        return 'Error processing exam timetable. Please check the format and try again.';
+      }
+    }
+
+    function parseExamTimetable(text) {
+      const exams = [];
+      const lines = text.split('\n').filter(line => line.trim());
+      
+      lines.forEach(line => {
+        // Multiple exam formats
+        const patterns = [
+          // "Math exam on Friday 10am"
+          /(.+?)\s+exam\s+on\s+(\w+)\s+(\d+\s*[ap]m)/i,
+          // "Friday 10am Math exam"
+          /(\w+)\s+(\d+\s*[ap]m)\s+(.+?)\s+exam/i,
+          // "Math exam Friday 10am"
+          /(.+?)\s+exam\s+(\w+)\s+(\d+\s*[ap]m)/i,
+          // "Exam Math Friday 10am"
+          /exam\s+(.+?)\s+(\w+)\s+(\d+\s*[ap]m)/i
+        ];
+        
+        for (const pattern of patterns) {
+          const match = line.match(pattern);
+          if (match) {
+            let subject, day, time;
+            
+            if (pattern === patterns[0]) {
+              // "Math exam on Friday 10am"
+              const [, subj, dayName, timeStr] = match;
+              subject = subj;
+              day = dayName;
+              time = timeStr;
+            } else if (pattern === patterns[1]) {
+              // "Friday 10am Math exam"
+              const [, dayName, timeStr, subj] = match;
+              subject = subj;
+              day = dayName;
+              time = timeStr;
+            } else {
+              // Other patterns
+              const [, subj, dayName, timeStr] = match;
+              subject = subj;
+              day = dayName;
+              time = timeStr;
+            }
+            
+            const dayNum = getDayNumber(day);
+            if (dayNum !== -1) {
+              const examDate = getNextDateForDay(dayNum);
+              exams.push({
+                subject: subject.trim(),
+                date: examDate,
+                time: formatTime(time)
+              });
+            }
+            break;
+          }
+        }
+      });
+      
+      return exams;
+    }
+
+    function generateStudyPlan(exams) {
+      const studyPlan = [];
+      const today = new Date();
+      
+      exams.forEach(exam => {
+        const daysUntilExam = Math.ceil((exam.date - today) / (1000 * 60 * 60 * 24));
+        
+        if (daysUntilExam > 1) {
+          // Create study sessions: 2-3 days before each exam
+          const studyDays = Math.min(3, Math.max(2, Math.floor(daysUntilExam / 2)));
+          
+          for (let i = studyDays; i >= 1; i--) {
+            const studyDate = new Date(exam.date);
+            studyDate.setDate(studyDate.getDate() - i);
+            
+            // Skip weekends (optional - can be customized)
+            if (studyDate.getDay() === 0 || studyDate.getDay() === 6) {
+              continue;
+            }
+            
+            studyPlan.push({
+              subject: exam.subject,
+              date: studyDate,
+              time: '18:00' // 6pm study time
+            });
+          }
+        }
+      });
+      
+      // Sort study plan by date
+      studyPlan.sort((a, b) => a.date - b.date);
+      
+      return studyPlan;
+    }
+
+    function formatTime(time) {
+      // Normalize time format
+      const timeMatch = time.match(/(\d+)\s*([ap]m)/i);
+      if (timeMatch) {
+        const [, hour, period] = timeMatch;
+        const hourNum = parseInt(hour);
+        const formattedHour = period.toLowerCase() === 'pm' && hourNum !== 12 ? hourNum + 12 : hourNum;
+        return `${formattedHour.toString().padStart(2, '0')}:00`;
+      }
+      return time;
+    }
+
+    function parseDaysFromText(dayText) {
+      const lowerText = dayText.toLowerCase();
+      const dayMap = {
+        'monday': 1, 'tuesday': 2, 'wednesday': 3, 'thursday': 4,
+        'friday': 5, 'saturday': 6, 'sunday': 0,
+        'weekdays': [1, 2, 3, 4, 5],
+        'weekends': [0, 6]
+      };
+      
+      for (const [key, value] of Object.entries(dayMap)) {
+        if (lowerText.includes(key)) {
+          return Array.isArray(value) ? value : [value];
+        }
+      }
+      
+      return [0, 1, 2, 3, 4, 5, 6]; // Default to all days
+    }
+
+    function formatDays(days) {
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      if (days.length === 7) return 'every day';
+      if (days.length === 5 && days.includes(1) && days.includes(5)) return 'weekdays';
+      if (days.length === 2 && days.includes(0) && days.includes(6)) return 'weekends';
+      return days.map(d => dayNames[d]).join(', ');
+    }
+
+    function formatDate(date) {
+      return date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+    }
 
     function loadPetState() {
       const saved = localStorage.getItem('lt_pet');
